@@ -73,6 +73,7 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    props.history.push('/')
   }
 
   return (
@@ -97,6 +98,8 @@ const CreateNew = (props) => {
   )
 }
 
+const AddAnecdote = withRouter(CreateNew)
+
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
     {
@@ -120,6 +123,8 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = (Math.random() * 10000).toFixed(0)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification(`a new anecdote ${anecdote.content} added`)
+    setTimeout(() => {setNotification('')}, 5000)
   }
 
   const anecdoteById = (id) =>
@@ -142,10 +147,11 @@ const App = () => {
         <h1>Software anecdotes</h1>
         <div>
           <Menu />
+          <p>{notification}</p>
         </div>        
         <Route exact path="/" render={() => <AnecdoteList anecdotes={anecdotes} />} />
         <Route exact path="/about" render={() => <About />} />
-        <Route exact path="/create" render={() => <CreateNew addNew={addNew} />} />
+        <Route exact path="/create" render={() => <AddAnecdote addNew={addNew} />} />
         <Route exact path="/anecdotes/:id" render={({ match }) =>
             <Anecdote anecdote={anecdoteById(match.params.id)} />}  
           />
