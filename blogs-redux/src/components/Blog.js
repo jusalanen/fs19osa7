@@ -1,32 +1,34 @@
 import React, { useState } from 'react'
-import blogService from '../services/blogs'
+import { connect } from 'react-redux'
+import { likeBlog, removeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, removeBlog, user }) => {
+const Blog = (props) => {
   const [showDet, setShowDet] = useState(false)
-  const [thisBlog, setThisBlog] = useState(blog)
-
-  const likeBlog = async (thisBlog) => {
-    const updatedBlog = {
-      title: thisBlog.title,
-      author: thisBlog.author,
-      url: thisBlog.url,
-      likes: thisBlog.likes + 1,
-      user: thisBlog.user,
-      id: thisBlog.id
-    }
-    const savedBlog = await blogService
-      .update(thisBlog.id, updatedBlog)
-    setThisBlog(savedBlog)
-  }
+  const [thisBlog, setThisBlog] = useState(props.blog)
 
   const toggle = () => {
     setShowDet(!showDet)
   }
 
+  const like = (blog) => {
+    props.likeBlog(blog)
+    setThisBlog({ ...blog, likes: blog.likes + 1 })
+  }
+
+  const remove = (blog) => {
+    if (window.confirm('Remove blog ' + blog.title + ' by ' + blog.author + '?'))  {
+      try {
+        props.removeBlog(blog)
+      } catch (ex) {
+        console.log(ex.message)
+      }
+    }
+  }
+
   const showOrNot = { display: showDet ? '' : 'none' }
 
   const showRemove = {
-    display: thisBlog.user.username === user.username ? '' : 'none' }
+    display: thisBlog.user.username === props.user.username ? '' : 'none' }
 
   return (
     <div className='blog' border='true' >
@@ -35,14 +37,22 @@ const Blog = ({ blog, removeBlog, user }) => {
       </div>
       <div style ={showOrNot} className='details' >
         <a href={thisBlog.url}>{thisBlog.url}</a><br></br>
-        likes {thisBlog.likes} <button onClick ={ () => {
-          likeBlog(thisBlog) }} >like</button><br></br>
+        likes {thisBlog.likes} <button onClick={ () => {
+          like(thisBlog) }} >like</button><br></br>
         added by {thisBlog.user.name}<br></br>
         <button style={showRemove} onClick={ () => {
-          removeBlog(thisBlog) }} >remove</button>
+          remove(thisBlog) }} >remove</button>
       </div>
     </div>
   )
 }
 
-export default Blog
+const mapDispatchToProps = {
+  likeBlog,
+  removeBlog
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(Blog)
