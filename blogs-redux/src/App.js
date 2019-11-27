@@ -6,25 +6,23 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import  { useField } from './hooks/index'
+import { setMessage, hideMessage } from './reducers/notificationReducer'
+import { connect } from 'react-redux'
 
-const App = () => {
+const App = (props) => {
   const [ blogs, setBlogs ] = useState([])
   const username = useField('text')
   const password = useField('password')
   const [user, setUser] = useState(null)
-  const [ message, setMessage ] = useState(null)
-  const [ messageType, setMessagetype ] = useState(null)
   const newTitle = useField('text')
   const newAuthor = useField('text')
   const newUrl = useField('text')
   const [blogformVisible, setBlogformVisible] = useState(false)
 
   const hook = () => {
-    console.log('effect')
     blogService
       .getAll()
       .then( initBlogs => {
-        console.log('promise fulfilled')
         console.log(initBlogs)
         setBlogs(initBlogs)
       })
@@ -43,6 +41,10 @@ const App = () => {
     }
   }, [])
 
+  const setMsg = (message, type) => {
+    props.setMessage({ message, type })
+    setTimeout(() => props.hideMessage(), 5000)
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -62,10 +64,7 @@ const App = () => {
       username.reset()
       password.reset()
     } catch (exception) {
-      setMessage('wrong username or password')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      setMsg('wrong username or password', 'error')
     }
   }
 
@@ -76,11 +75,8 @@ const App = () => {
 
   const addBlog = async (event) => {
     event.preventDefault()
-    if (newTitle === '' || newUrl === '') {
-      setMessage('title or url missing')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+    if ( newTitle.props.value === '' || newUrl.props.value === '' ) {
+      setMsg('title or url missing', 'error')
       return
     }
     const blogObject = {
@@ -91,14 +87,9 @@ const App = () => {
     const savedBlog = await blogService.create(blogObject)
     setBlogs(blogs.concat(savedBlog))
 
-    setMessagetype('success')
     const title = newTitle.props.value
     const author = newAuthor.props.value
-    setMessage('Added blog ' + title + ' by ' + author)
-    setTimeout(() => {
-      setMessage(null)
-      setMessagetype(null)
-    }, 5000)
+    setMsg('Added blog ' + title + ' by ' + author, 'success')
     newTitle.reset()
     newAuthor.reset()
     newUrl.reset()
@@ -108,10 +99,9 @@ const App = () => {
   const removeBlog = async (blog) => {
     if (window.confirm('Remove blog ' + blog.title + ' by ' + blog.author + '?'))  {
       try {
-        const resp = await blogService.remove(blog.id)
-        console.log(resp)
+        await blogService.remove(blog.id)
       } catch (ex) {
-        window.alert('Only the creator can remove a blog.')
+        window.alert('only the creator can remove a blog.')
         console.log(ex)
       }
       const blogs = await blogService.getAll()
@@ -126,7 +116,7 @@ const App = () => {
     return (
       <div>
         <h2>log in to blog application</h2>
-        <Notification message={message} />
+        <Notification />
         <LoginForm handleLogin = {handleLogin}
           username = {username.props}
           password = {password.props}
@@ -138,7 +128,7 @@ const App = () => {
   return (
     <div>
       <h2>Blogs</h2>
-      <Notification message={message} type={messageType}/>
+      <Notification />
       <table><tbody><tr><td><p>{user.name} logged in </p></td>
         <td width='50'><button onClick = { () => {
           logOut()}}>logout</button></td></tr></tbody></table>
@@ -157,7 +147,14 @@ const App = () => {
       )}
     </div>
   )
-
 }
 
-export default App
+const mapDispatchToProps = {
+  setMessage,
+  hideMessage
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(App)

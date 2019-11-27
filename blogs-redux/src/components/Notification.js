@@ -1,10 +1,9 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
-const Notification = (props) => {
-  const message = props.message
-  const type = props.type
+const Notification = ({ message, type }) => {
 
-  if (message === null) {
+  if (message === null || message === undefined ) {
     return null
   }
   if (type === 'success') {
@@ -14,11 +13,24 @@ const Notification = (props) => {
       </div>
     )
   }
-  return (
-    <div className="error">
-      { message }
-    </div>
-  )
+  if (type === 'error') {
+    return (
+      <div className="error">
+        { message }
+      </div>
+    )
+  }
+  return null
 }
 
-export default Notification
+const mapStateToProps = (state) => {
+  return {
+    message: state.notification.message,
+    type: state.notification.type
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  null
+)(Notification)
