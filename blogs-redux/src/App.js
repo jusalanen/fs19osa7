@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import loginService from './services/login'
 import Notification from './components/Notification'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import { useField } from './hooks/index'
 import { setMessage, hideMessage } from './reducers/notificationReducer'
 import { initializeBlogs, newBlog, likeBlog, removeBlog } from './reducers/blogReducer'
+import loginService from './services/login'
+import { login, setUser, logout } from './reducers/userReducer'
 import { connect } from 'react-redux'
+
 
 const App = (props) => {
   const username = useField('text')
   const password = useField('password')
-  const [user, setUser] = useState(null)
   const newTitle = useField('text')
   const newAuthor = useField('text')
   const newUrl = useField('text')
@@ -25,13 +25,11 @@ const App = (props) => {
     getBlogs()
   }, [getBlogs])
 
-  useEffect( () => {
+  useEffect((props) => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
-      console.log(loggedUserJSON)
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      props.setUser(user)
     }
   }, [])
 
@@ -43,28 +41,24 @@ const App = (props) => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({
+      const credentials = {
         username: username.props.value,
         password: password.props.value
-      })
+      }
+      const loggedUser = await loginService.login(credentials)
+      console.log(loggedUser)
+      props.login(loggedUser)
 
-      window.localStorage.setItem(
-        'loggedBlogAppUser', JSON.stringify(user)
-      )
-      console.log(user)
-      console.log(window.localStorage)
-      blogService.setToken(user.token)
-      setUser(user)
       username.reset()
       password.reset()
     } catch (exception) {
+      console.log(exception.message)
       setMsg('wrong username or password', 'error')
     }
   }
 
   const logOut = () => {
-    setUser(null)
-    window.localStorage.clear()
+    props.logout()
   }
 
   const addBlog = async (event) => {
@@ -93,7 +87,7 @@ const App = (props) => {
   const hideWhenFormVisible = { display: blogformVisible ? 'none' : '' }
   const showWhenFormVisible = { display: blogformVisible ? '' : 'none' }
 
-  if (user === null) {
+  if (props.user === null) {
     return (
       <div>
         <h2>log in to blog application</h2>
@@ -110,7 +104,7 @@ const App = (props) => {
     <div>
       <h2>Blogs</h2>
       <Notification />
-      <table><tbody><tr><td><p>{user.name} logged in </p></td>
+      <table><tbody><tr><td><p>{props.user.name} logged in </p></td>
         <td width='50'><button onClick = { () => {
           logOut()}}>logout</button></td></tr></tbody></table>
       <div style={hideWhenFormVisible}>
@@ -124,7 +118,7 @@ const App = (props) => {
         />
         <button onClick={() => setBlogformVisible(false)}>cancel</button></div><br></br>
       {props.blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} user={user}/>
+        <Blog key={blog.id} blog={blog} user={props.user}/>
       )}
     </div>
   )
@@ -133,7 +127,8 @@ const App = (props) => {
 const mapStateToProps = (state) => {
   console.log(state)
   return {
-    blogs: state.blogs
+    blogs: state.blogs,
+    user: state.user
   }
 }
 
@@ -144,7 +139,10 @@ const mapDispatchToProps = {
   initializeBlogs,
   newBlog,
   likeBlog,
-  removeBlog
+  removeBlog,
+  login,
+  setUser,
+  logout
 }
 
 export default connect(
