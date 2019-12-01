@@ -8,8 +8,9 @@ import { setMessage, hideMessage } from './reducers/notificationReducer'
 import { initializeBlogs, newBlog, likeBlog, removeBlog } from './reducers/blogReducer'
 import loginService from './services/login'
 import { login, setUser, logout } from './reducers/userReducer'
+import { getAllUsers } from './reducers/allUsersRedecer'
 import { connect } from 'react-redux'
-
+import UserList from './components/UserList'
 
 const App = (props) => {
   const username = useField('text')
@@ -18,18 +19,25 @@ const App = (props) => {
   const newAuthor = useField('text')
   const newUrl = useField('text')
   const [blogformVisible, setBlogformVisible] = useState(false)
+  const [usersVisible, setUsersVisible] = useState(false)
 
   const getBlogs = props.initializeBlogs
+  const getUsers = props.getAllUsers
+  const setLoggedUser = props.setUser
 
   useEffect(() => {
     getBlogs()
   }, [getBlogs])
 
-  useEffect((props) => {
+  useEffect(() => {
+    getUsers()
+  }, [getUsers])
+
+  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      props.setUser(user)
+      setLoggedUser(user)
     }
   }, [])
 
@@ -84,6 +92,9 @@ const App = (props) => {
     setBlogformVisible(false)
   }
 
+  const hideWhenUsersVisible = { display: usersVisible ? 'none' : '' }
+  const showWhenUsersVisible = { display: usersVisible ? '' : 'none' }
+
   const hideWhenFormVisible = { display: blogformVisible ? 'none' : '' }
   const showWhenFormVisible = { display: blogformVisible ? '' : 'none' }
 
@@ -102,11 +113,17 @@ const App = (props) => {
 
   return (
     <div>
-      <h2>Blogs</h2>
+      <h1>Blogs</h1>
       <Notification />
       <table><tbody><tr><td><p>{props.user.name} logged in </p></td>
         <td width='50'><button onClick = { () => {
           logOut()}}>logout</button></td></tr></tbody></table>
+      <div style={hideWhenUsersVisible}>
+        <button onClick={() => setUsersVisible(true)}>users</button>
+      </div>
+      <div style={showWhenUsersVisible}>
+        <UserList setUsersVisible={setUsersVisible} />
+      </div>
       <div style={hideWhenFormVisible}>
         <button onClick={() => setBlogformVisible(true)}>new blog</button>
       </div>
@@ -128,7 +145,8 @@ const mapStateToProps = (state) => {
   console.log(state)
   return {
     blogs: state.blogs,
-    user: state.user
+    user: state.user,
+    allUsers: state.allUsers
   }
 }
 
@@ -142,7 +160,8 @@ const mapDispatchToProps = {
   removeBlog,
   login,
   setUser,
-  logout
+  logout,
+  getAllUsers
 }
 
 export default connect(
