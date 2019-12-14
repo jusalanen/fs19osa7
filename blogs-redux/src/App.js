@@ -11,6 +11,82 @@ import { login, setUser, logout } from './reducers/userReducer'
 import { getAllUsers } from './reducers/allUsersRedecer'
 import { connect } from 'react-redux'
 import UserList from './components/UserList'
+import User from './components/User'
+import {
+  BrowserRouter as Router, Route, Link } from 'react-router-dom'
+
+const Menu = () => {
+  const padding = {
+    paddingRight: 5
+  }
+  return (
+    <div>
+      <Link style={padding} to="/">blogs</Link>
+      <Link style={padding} to="/users">users</Link>
+    </div>
+  )
+}
+
+const BlogList = (props) => {
+  const [blogformVisible, setBlogformVisible] = useState(false)
+  const hideWhenFormVisible = { display: blogformVisible ? 'none' : '' }
+  const showWhenFormVisible = { display: blogformVisible ? '' : 'none' }
+
+  return (
+    <div>
+      <div style={hideWhenFormVisible}>
+        <button onClick={() => setBlogformVisible(true)}>new blog</button>
+      </div>
+      <div style={showWhenFormVisible}>
+        <BlogForm addBlog = {props.addBlog}
+          title = {props.newTitle.props}
+          author = {props.newAuthor.props}
+          url = {props.newUrl.props}
+        />
+        <button onClick={() => setBlogformVisible(false)}>cancel</button></div><br></br>
+      <ul>
+        {props.blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} user={props.user}/>)}
+      </ul>
+    </div>
+  )
+}
+/*
+const User = ({ user }) => {
+
+  if ( user === undefined || user === null ) {
+    return null
+  }
+
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>has added blogs:</p>
+      <ul>
+        {user.blogs.map(blog => (
+          <li key={blog.id}>{blog.title}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+const UserList = props => {
+
+  return(
+    <Router>
+      <div>
+        <h2>Users</h2>
+        <table><tbody><tr><td width='120'>User</td><td>blogs added</td></tr>
+          {props.users.map(user =>
+            <tr key={user.id} ><td width='120'><Link to={`/users/${user.id}`}>{user.name}</Link></td>
+              <td>{user.blogs.length}</td></tr>
+          )}
+        </tbody></table>
+      </div>
+    </Router>
+  )
+}*/
 
 const App = (props) => {
   const username = useField('text')
@@ -18,12 +94,11 @@ const App = (props) => {
   const newTitle = useField('text')
   const newAuthor = useField('text')
   const newUrl = useField('text')
-  const [blogformVisible, setBlogformVisible] = useState(false)
-  const [usersVisible, setUsersVisible] = useState(false)
 
   const getBlogs = props.initializeBlogs
   const getUsers = props.getAllUsers
   const setLoggedUser = props.setUser
+  const allUsers = props.allUsers
 
   useEffect(() => {
     getBlogs()
@@ -89,14 +164,10 @@ const App = (props) => {
     newTitle.reset()
     newAuthor.reset()
     newUrl.reset()
-    setBlogformVisible(false)
   }
 
-  const hideWhenUsersVisible = { display: usersVisible ? 'none' : '' }
-  const showWhenUsersVisible = { display: usersVisible ? '' : 'none' }
-
-  const hideWhenFormVisible = { display: blogformVisible ? 'none' : '' }
-  const showWhenFormVisible = { display: blogformVisible ? '' : 'none' }
+  const userById = (id) =>
+    allUsers.find(u => u.id === id)
 
   if (props.user === null) {
     return (
@@ -112,32 +183,27 @@ const App = (props) => {
   }
 
   return (
-    <div>
-      <h1>Blogs</h1>
-      <Notification />
-      <table><tbody><tr><td><p>{props.user.name} logged in </p></td>
-        <td width='50'><button onClick = { () => {
-          logOut()}}>logout</button></td></tr></tbody></table>
-      <div style={hideWhenUsersVisible}>
-        <button onClick={() => setUsersVisible(true)}>users</button>
+    <Router>
+      <div>
+        <h1>Blogs</h1>
+        <Menu />
+        <Notification />
+        <table><tbody><tr><td><p>{props.user.name} logged in </p></td>
+          <td width='50'><button onClick = { () => {
+            logOut()}}>logout</button></td></tr></tbody></table>
+        <Route exact path="/" render={() =>
+          <BlogList blogs={props.blogs}
+            user={props.user}
+            addBlog={addBlog}
+            newTitle={newTitle}
+            newAuthor={newAuthor}
+            newUrl={newUrl}/>} />
+        <Route exact path="/users" render={() => <UserList users={props.allUsers} />} />
+        <Route exact path="/users/:id" render={({ match }) =>
+          <User user={userById(match.params.id)} />} />
       </div>
-      <div style={showWhenUsersVisible}>
-        <UserList setUsersVisible={setUsersVisible} />
-      </div>
-      <div style={hideWhenFormVisible}>
-        <button onClick={() => setBlogformVisible(true)}>new blog</button>
-      </div>
-      <div style={showWhenFormVisible}>
-        <BlogForm addBlog = {addBlog}
-          title = {newTitle.props}
-          author = {newAuthor.props}
-          url = {newUrl.props}
-        />
-        <button onClick={() => setBlogformVisible(false)}>cancel</button></div><br></br>
-      {props.blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} user={props.user}/>
-      )}
-    </div>
+    </Router>
+
   )
 }
 

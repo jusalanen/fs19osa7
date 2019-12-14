@@ -1,32 +1,22 @@
 import React from 'react'
-import { connect } from 'react-redux'
 
-const UserList = props => {
-  const setUsersVisible = props.setUsersVisible
+const User = ({ user }) => {
 
-  return(
+  if ( user === undefined || user === null ) {
+    return null
+  }
+
+  return (
     <div>
-      <h2>Users</h2>
-      <table><tbody><tr><td width='100'><p></p></td>
-        <td></td>Added blogs</tr>
-      {props.users.map(user =>
-        <tr key={user.id} ><td width='100'><p>{user.name} </p></td>
-          <td></td>{user.blogs.length}</tr>
-      )}
-      </tbody></table>
-      <button onClick={() => setUsersVisible(false)}>hide</button><br></br>
+      <h2>{user.name}</h2>
+      <p>has added blogs:</p>
+      <ul>
+        {user.blogs.map(blog => (
+          <li key={blog.id}>{blog.title}</li>
+        ))}
+      </ul>
     </div>
   )
 }
 
-const mapStateToProps = (state) => {
-  console.log(state)
-  return {
-    users: state.allUsers
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  null
-)(UserList)
+export default User

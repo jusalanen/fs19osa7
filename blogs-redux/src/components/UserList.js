@@ -1,20 +1,25 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import {
+  BrowserRouter as Router,
+  Link
+} from 'react-router-dom'
+
 
 const UserList = props => {
-  const setUsersVisible = props.setUsersVisible
 
   return(
-    <div>
-      <h2>Users</h2>
-      <table><tbody><tr><td width='120'>User</td><td>blogs added</td></tr>
-        {props.users.map(user =>
-          <tr key={user.id} ><td width='120'>{user.name}</td>
-            <td>{user.blogs.length}</td></tr>
-        )}
-      </tbody></table>
-      <button onClick={() => setUsersVisible(false)}>hide users</button><br></br>
-    </div>
+    <Router>
+      <div>
+        <h2>Users</h2>
+        <table><tbody><tr><td width='120'>User</td><td>blogs added</td></tr>
+          {props.users.map(user =>
+            <tr key={user.id} ><td width='120'><Link to={`/users/${user.id}`}>{user.name}</Link></td>
+              <td>{user.blogs.length}</td></tr>
+          )}
+        </tbody></table>
+      </div>
+    </Router>
   )
 }
 
