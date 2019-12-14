@@ -51,42 +51,6 @@ const BlogList = (props) => {
     </div>
   )
 }
-/*
-const User = ({ user }) => {
-
-  if ( user === undefined || user === null ) {
-    return null
-  }
-
-  return (
-    <div>
-      <h2>{user.name}</h2>
-      <p>has added blogs:</p>
-      <ul>
-        {user.blogs.map(blog => (
-          <li key={blog.id}>{blog.title}</li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-const UserList = props => {
-
-  return(
-    <Router>
-      <div>
-        <h2>Users</h2>
-        <table><tbody><tr><td width='120'>User</td><td>blogs added</td></tr>
-          {props.users.map(user =>
-            <tr key={user.id} ><td width='120'><Link to={`/users/${user.id}`}>{user.name}</Link></td>
-              <td>{user.blogs.length}</td></tr>
-          )}
-        </tbody></table>
-      </div>
-    </Router>
-  )
-}*/
 
 const App = (props) => {
   const username = useField('text')
