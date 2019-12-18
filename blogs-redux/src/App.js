@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Notification from './components/Notification'
-import Blog from './components/Blog'
+import SingleBlog from './components/SingleBlog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import { useField } from './hooks/index'
@@ -44,10 +44,8 @@ const BlogList = (props) => {
           url = {props.newUrl.props}
         />
         <button onClick={() => setBlogformVisible(false)}>cancel</button></div><br></br>
-      <ul>
-        {props.blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} user={props.user}/>)}
-      </ul>
+      {props.blogs.map(blog => <div key={blog.id} className='blog' border='true' >
+        <Link to={`/blogs/${blog.id}`}>{blog.title} by {blog.author}</Link></div>)}
     </div>
   )
 }
@@ -63,6 +61,7 @@ const App = (props) => {
   const getUsers = props.getAllUsers
   const setLoggedUser = props.setUser
   const allUsers = props.allUsers
+  const blogs = props.blogs
 
   useEffect(() => {
     getBlogs()
@@ -133,6 +132,9 @@ const App = (props) => {
   const userById = (id) =>
     allUsers.find(u => u.id === id)
 
+  const blogById = (id) =>
+    blogs.find(b => b.id === id)
+
   if (props.user === null) {
     return (
       <div>
@@ -162,6 +164,8 @@ const App = (props) => {
             newTitle={newTitle}
             newAuthor={newAuthor}
             newUrl={newUrl}/>} />
+        <Route exact path="/blogs/:id" render={({ match }) =>
+          <SingleBlog blog={blogById(match.params.id)} />} />
         <Route exact path="/users" render={() => <UserList users={props.allUsers} />} />
         <Route exact path="/users/:id" render={({ match }) =>
           <User user={userById(match.params.id)} />} />
