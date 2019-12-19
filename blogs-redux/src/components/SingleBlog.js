@@ -42,16 +42,6 @@ const SingleBlog = (props) => {
     setThisBlog({ ...blog, likes: blog.likes + 1 })
   }
 
-  const remove = (blog) => {
-    if (window.confirm('Remove blog ' + blog.title + ' by ' + blog.author + '?'))  {
-      try {
-        props.removeBlog(blog)
-      } catch (ex) {
-        console.log(ex.message)
-      }
-    }
-  }
-
   if (thisBlog === undefined ) {
     return null
   }

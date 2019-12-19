@@ -15,14 +15,16 @@ import User from './components/User'
 import {
   BrowserRouter as Router, Route, Link } from 'react-router-dom'
 
-const Menu = () => {
+const Menu = (props) => {
   const padding = {
-    paddingRight: 5
+    paddingRight: 10
   }
   return (
-    <div>
+    <div className='menu'>
       <Link style={padding} to="/">blogs</Link>
       <Link style={padding} to="/users">users</Link>
+      {props.user.name} logged in <button onClick = { () => {
+        props.logOut()}}>logout</button>
     </div>
   )
 }
@@ -151,12 +153,9 @@ const App = (props) => {
   return (
     <Router>
       <div>
+        <Menu logOut={logOut} user={props.user}/>
         <h1>Blogs</h1>
-        <Menu />
         <Notification />
-        <table><tbody><tr><td><p>{props.user.name} logged in </p></td>
-          <td width='50'><button onClick = { () => {
-            logOut()}}>logout</button></td></tr></tbody></table>
         <Route exact path="/" render={() =>
           <BlogList blogs={props.blogs}
             user={props.user}
