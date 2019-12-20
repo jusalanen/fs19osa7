@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGci0iJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2Vymb
+
+{
+  "title": "Blog Again",
+  "author": "Again Author",
+  "url": "localhost:something/xxyyzz",
+  "likes": 0
+}
