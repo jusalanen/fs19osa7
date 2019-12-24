@@ -66,6 +66,12 @@ const SingleBlog = (props) => {
               showRemove={showRemove}
               setThisBlog={setThisBlog} />}
           />
+          <h3>comments</h3>
+          <ul>
+            {thisBlog.comments.map(item => (
+              <li key={item.id}>{item.comment}</li>
+            ))}
+          </ul>
         </div>
       </Router>
     )

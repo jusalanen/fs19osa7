@@ -1,12 +1,19 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
+  try {
+  const blogs = await Blog.find({})
+  .populate('user', { username: 1, name: 1 })
+  .populate('comments', { comment: 1 })
  
   response.json(blogs.map(blog => blog.toJSON()))
+  } catch (e) {
+    console.log(e)
+  }
 })
 
 const getTokenFrom = request => {
@@ -20,7 +27,7 @@ const getTokenFrom = request => {
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
   if (body.title === undefined || body.url === undefined) {
-    return response.status(400).json( { error: 'title or url missing' })
+    return response.status(400).json({ error: 'title or url missing' })
   }
 
   const token = getTokenFrom(request)
@@ -56,8 +63,8 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   const blog = await Blog.findById(request.params.id) 
   try {
     const decodedToken = jwt.verify(token, process.env.SECRET)
-    if(!token || decodedToken.id !== blog.user.toString()) {
-      return response.status(401).json({ error: 'only the creator can delete a blog' })
+    if (!token || decodedToken.id !== blog.user.toString()) {
+      return response.status(401).json({ error: 'only the blog creator can delete a blog' })
     }
     await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
@@ -73,7 +80,8 @@ blogsRouter.put('/:id', async (request, response, next) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    comments: body.comments
   }
   try {
     const updBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
@@ -82,6 +90,27 @@ blogsRouter.put('/:id', async (request, response, next) => {
     console.log(ex.message)
     next(ex)
   }
+})
+
+blogsRouter.post('/:id/comments', async (request, response, next) => {
+  const body = request.body
+  if (!body || !body.comment) {
+    return response.status(400).json({ error: 'comment contents missing' })
+  }
+  try {
+    const blog = await Blog.findById(request.params.id)
+    const comment = new Comment({
+    comment: body.comment,
+    blog: blog._id
+    })
+    const savedComment = await comment.save()
+    blog.comments = blog.comments.push(savedComment)
+    await blog.save()
+    response.status(201).json(savedComment.toJSON())
+  } catch (ex) {
+    console.log(ex.message)
+    next(ex)
+  }  
 })
 
 module.exports = blogsRouter

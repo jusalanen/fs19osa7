@@ -1,7 +1,7 @@
 const config = require('./utils/config')
 const express = require('express')
 const bodyParser = require('body-parser')
-const app = express()
+const App = express()
 const cors = require('cors')
 const blogsRouter = require('./controller/blogs')
 const usersRouter = require('./controller/users')
@@ -19,15 +19,15 @@ mongoose.connect(config.MONGODB_URI, {
     console.log('connected to MongoDB')
   })
   .catch((error) => {
-    console.log('error connection to MongoDB:', error.message)
+    console.log('error connecting to MongoDB:', error.message)
   })
 
-app.use(cors())
-app.use(bodyParser.json())
-app.use(logger)
+App.use(cors())
+App.use(bodyParser.json())
+App.use(logger)
 
-app.use('/api/blogs', blogsRouter)
-app.use('/api/users', usersRouter)
-app.use('/api/login', loginRouter)
+App.use('/api/blogs', blogsRouter)
+App.use('/api/users', usersRouter)
+App.use('/api/login', loginRouter)
 
-module.exports = app
+module.exports = App
