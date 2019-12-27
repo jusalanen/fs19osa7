@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { useField } from '../hooks/index'
 import { likeBlog, addComment, removeBlog } from '../reducers/blogReducer'
+import { Form, Button, Container } from 'semantic-ui-react'
 import { BrowserRouter as Router,
-  Route, Redirect, withRouter } from 'react-router-dom'
+  Route, withRouter } from 'react-router-dom'
 
 const RemoveBlog = (props) => {
   const blog = props.blogToRemove
@@ -45,8 +45,8 @@ const SingleBlog = (props) => {
   }
 
   const handleComment = (blog) => {
-    setThisBlog({ ...blog, comments: blog.comments.concat(comment) })
     props.addComment(blog, comment)
+    setThisBlog({ ...blog, comments: blog.comments.concat(comment) })
     setComment('')
   }
 
@@ -66,7 +66,7 @@ const SingleBlog = (props) => {
 
     return (
       <Router>
-        <div>
+        <Container>
           <h2>{thisBlog.title} by {thisBlog.author}</h2>
           <p><a href={thisBlog.url}>{thisBlog.url}</a></p>
           likes {thisBlog.likes} <button onClick={() => {
@@ -79,27 +79,23 @@ const SingleBlog = (props) => {
               setThisBlog={setThisBlog} />}
           />
           <h3>comments</h3>
-          <form onSubmit={() => handleComment(thisBlog)}>
-            <input type='text'
-              value={comment} onChange={handleTextChange} />
-            <button type='submit' >add comment</button>
-          </form>
+          <Form onSubmit={() => handleComment(thisBlog)}>
+            <Form.Field>
+              <label>comment</label>
+              <input name="Comment" value={comment}
+                onChange={handleTextChange} />
+            </Form.Field>
+            <Button type="submit">add comment</Button>
+          </Form>
           <ul>
             {thisBlog.comments.map(item => (
               <li key={item.id}>{item.comment}</li>
             ))}
           </ul>
-        </div>
+        </Container>
       </Router>
     )
   }
-  return(
-    <Router>
-      <Route exact path="/blogs/:id" render={() =>
-        <Redirect to="/" />//ei taida toimia
-      } />
-    </Router>
-  )
 }
 
 const mapStateToProps = (state) => {

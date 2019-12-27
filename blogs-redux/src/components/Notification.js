@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { Container, Message } from 'semantic-ui-react'
 
 const Notification = ({ message, type }) => {
 
@@ -8,16 +9,20 @@ const Notification = ({ message, type }) => {
   }
   if (type === 'success') {
     return (
-      <div className="notification">
-        { message }
-      </div>
+      <Container>
+        <Message className="notification">
+          {message}
+        </Message>
+      </Container>
     )
   }
   if (type === 'error') {
     return (
-      <div className="error">
-        { message }
-      </div>
+      <Container>
+        <Message className="error">
+          { message }
+        </Message>
+      </Container>
     )
   }
   return null

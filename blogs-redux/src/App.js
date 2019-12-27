@@ -14,19 +14,30 @@ import UserList from './components/UserList'
 import User from './components/User'
 import {
   BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import { Container } from 'semantic-ui-react'
+import { Container, Table, Menu, Button } from 'semantic-ui-react'
 
-const Menu = (props) => {
-  const padding = {
-    paddingRight: 10
-  }
+const AppMenu = (props) => {
+  const handleLogout = props.logOut
+
   return (
-    <div className='menu'>
-      <Link style={padding} to="/">blogs</Link>
-      <Link style={padding} to="/users">users</Link>
-      {props.user.name} logged in <button onClick = { () => {
-        props.logOut()}}>logout</button>
-    </div>
+    <Container>
+      <div>
+        <Menu inverted>
+          <Menu.Item link>
+            <Link to="/">blogs</Link>
+          </Menu.Item>
+          <Menu.Item link>
+            <Link to="/users">users</Link>
+          </Menu.Item>
+          <Menu.Item
+            name='logout'
+            onClick={handleLogout}
+          >
+            logout
+          </Menu.Item>
+        </Menu>
+      </div>
+    </Container>
   )
 }
 
@@ -45,10 +56,17 @@ const BlogList = (props) => {
           title = {props.newTitle.props}
           author = {props.newAuthor.props}
           url = {props.newUrl.props}
-        />
-        <button onClick={() => setBlogformVisible(false)}>cancel</button></div><br></br>
-      {props.blogs.map(blog => <div key={blog.id} className='blog' border='true' >
-        <Link to={`/blogs/${blog.id}`}>{blog.title} by {blog.author}</Link></div>)}
+        /><br></br>
+        <Button  onClick={() => setBlogformVisible(false)}>cancel</Button>
+      </div>
+      <Table striped celled><Table.Body>
+        {props.blogs.map(blog => <Table.Row key={blog.id} >
+          <Table.Cell>
+            <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+          </Table.Cell>
+          <Table.Cell>{blog.author}</Table.Cell>
+        </Table.Row>)}
+      </Table.Body></Table>
     </div>
   )
 }
@@ -141,6 +159,7 @@ const App = (props) => {
   if (props.user === null) {
     return (
       <Container>
+        <p></p>
         <h2>log in to blog application</h2>
         <Notification />
         <LoginForm handleLogin = {handleLogin}
@@ -154,7 +173,9 @@ const App = (props) => {
   return (
     <Router>
       <Container>
-        <Menu logOut={logOut} user={props.user}/>
+        <AppMenu logOut={() => logOut()} />
+        <p></p>
+        {props.user.name} logged in
         <h1>Blogs</h1>
         <Notification />
         <Route exact path="/" render={() =>

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Form, Button, Label } from 'semantic-ui-react'
 
 
 const BlogForm = props => {
@@ -11,21 +12,21 @@ const BlogForm = props => {
   return (
     <div>
       <h3>Add a new blog</h3>
-      <form onSubmit={addBlog}>
-        <div>
-            title <input {...title}
-            name="Title" />
-        </div>
-        <div>
-            author <input {...author}
-            name="Author" />
-        </div>
-        <div>
-            url <input {...url}
-            name="Url" />
-        </div>
-        <button type="submit">submit</button>
-      </form>
+      <Form onSubmit={addBlog}>
+        <Form.Field>
+          <Label>title</Label>
+          <input name="Title" {...title}/>
+        </Form.Field>
+        <Form.Field>
+          <Label>author</Label>
+          <input name="Author"{...author} />
+        </Form.Field>
+        <Form.Field>
+          <Label>url</Label>
+          <input name="Url"{...url} />
+        </Form.Field>
+        <Button type="submit">submit</Button>
+      </Form>
     </div>
   )
 }
