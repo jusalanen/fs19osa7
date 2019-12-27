@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { likeBlog, removeBlog } from '../reducers/blogReducer'
+import { useField } from '../hooks/index'
+import { likeBlog, addComment, removeBlog } from '../reducers/blogReducer'
 import { BrowserRouter as Router,
   Route, Redirect, withRouter } from 'react-router-dom'
 
@@ -35,11 +36,22 @@ const RemoveBlog = (props) => {
 const Remove = withRouter(RemoveBlog)
 
 const SingleBlog = (props) => {
+  const [comment, setComment] = useState('')
   const [thisBlog, setThisBlog] = useState(props.blog)
 
   const like = (blog) => {
     props.likeBlog(blog)
     setThisBlog({ ...blog, likes: blog.likes + 1 })
+  }
+
+  const handleComment = (blog) => {
+    setThisBlog({ ...blog, comments: blog.comments.concat(comment) })
+    props.addComment(blog, comment)
+    setComment('')
+  }
+
+  const handleTextChange = (event) => {
+    setComment(event.target.value)
   }
 
   if (thisBlog === undefined ) {
@@ -67,6 +79,11 @@ const SingleBlog = (props) => {
               setThisBlog={setThisBlog} />}
           />
           <h3>comments</h3>
+          <form onSubmit={() => handleComment(thisBlog)}>
+            <input type='text'
+              value={comment} onChange={handleTextChange} />
+            <button type='submit' >add comment</button>
+          </form>
           <ul>
             {thisBlog.comments.map(item => (
               <li key={item.id}>{item.comment}</li>
@@ -93,6 +110,7 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = {
   likeBlog,
+  addComment,
   removeBlog
 }
 

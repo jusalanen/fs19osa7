@@ -14,6 +14,7 @@ import UserList from './components/UserList'
 import User from './components/User'
 import {
   BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Container } from 'semantic-ui-react'
 
 const Menu = (props) => {
   const padding = {
@@ -139,20 +140,20 @@ const App = (props) => {
 
   if (props.user === null) {
     return (
-      <div>
+      <Container>
         <h2>log in to blog application</h2>
         <Notification />
         <LoginForm handleLogin = {handleLogin}
           username = {username.props}
           password = {password.props}
         />
-      </div>
+      </Container>
     )
   }
 
   return (
     <Router>
-      <div>
+      <Container>
         <Menu logOut={logOut} user={props.user}/>
         <h1>Blogs</h1>
         <Notification />
@@ -168,7 +169,7 @@ const App = (props) => {
         <Route exact path="/users" render={() => <UserList users={props.allUsers} />} />
         <Route exact path="/users/:id" render={({ match }) =>
           <User user={userById(match.params.id)} />} />
-      </div>
+      </Container>
     </Router>
 
   )
