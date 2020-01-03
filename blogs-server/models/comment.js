@@ -5,6 +5,10 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  key: {
+    type: Number,
+    required: true
+  },
   blog: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Blog'

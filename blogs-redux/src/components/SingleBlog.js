@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { likeBlog, addComment, removeBlog } from '../reducers/blogReducer'
 import { Form, Button, Container } from 'semantic-ui-react'
 import { BrowserRouter as Router,
-  Route, withRouter } from 'react-router-dom'
+  Route, withRouter, Redirect } from 'react-router-dom'
 
 const RemoveBlog = (props) => {
   const blog = props.blogToRemove
@@ -27,7 +27,7 @@ const RemoveBlog = (props) => {
   return (
     <div>
       <form onSubmit={handleRemove}>
-        <button type='submit' style={showRemove}>remove</button>
+        <Button type='submit' style={showRemove}>remove</Button>
       </form>
     </div>
   )
@@ -45,17 +45,29 @@ const SingleBlog = (props) => {
   }
 
   const handleComment = (blog) => {
-    props.addComment(blog, comment)
-    setThisBlog({ ...blog, comments: blog.comments.concat(comment) })
+    if (comment.length === 0) {
+      return
+    }
+    let key = 1
+    if (thisBlog.comments && thisBlog.comments.length >= 0) {
+      key = thisBlog.comments.length + 1
+    }
+    const newComment = {
+      comment,
+      key
+    }
+    props.addComment(blog, comment, key)
+    setThisBlog({ ...blog, comments: blog.comments.concat(newComment) })
     setComment('')
+    return <Redirect to="/" />
   }
 
   const handleTextChange = (event) => {
     setComment(event.target.value)
   }
 
-  if (thisBlog === undefined ) {
-    return null
+  if (thisBlog === undefined || !thisBlog) {
+    return <Redirect to="/" />
   }
 
   let showRemove = { display: 'none' }
@@ -69,8 +81,8 @@ const SingleBlog = (props) => {
         <Container>
           <h2>{thisBlog.title} by {thisBlog.author}</h2>
           <p><a href={thisBlog.url}>{thisBlog.url}</a></p>
-          likes {thisBlog.likes} <button onClick={() => {
-            like(thisBlog) }} >like</button><br></br>
+          likes {thisBlog.likes} <Button onClick={() => {
+            like(thisBlog) }} >like</Button><br></br><br></br>
           <p>added by {thisBlog.user.name}</p>
           <Route exact path="/blogs/:id" render={() =>
             <Remove blogToRemove={thisBlog}
@@ -89,7 +101,7 @@ const SingleBlog = (props) => {
           </Form>
           <ul>
             {thisBlog.comments.map(item => (
-              <li key={item.id}>{item.comment}</li>
+              <li key={item.key}>{item.comment}</li>
             ))}
           </ul>
         </Container>

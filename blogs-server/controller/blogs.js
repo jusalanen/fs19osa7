@@ -66,6 +66,9 @@ blogsRouter.delete('/:id', async (request, response, next) => {
     if (!token || decodedToken.id !== blog.user.toString()) {
       return response.status(401).json({ error: 'only the blog creator can delete a blog' })
     }
+    const comments = blog.comments
+    comments.forEach(comment =>
+    Comment.findByIdAndRemove(comment._id.toString()))
     await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
   } catch (ex) {
@@ -83,8 +86,9 @@ blogsRouter.put('/:id', async (request, response, next) => {
     likes: body.likes,
     comments: body.comments
   }
+  const blogId = request.params.id
   try {
-    const updBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+    const updBlog = await Blog.findByIdAndUpdate(blogId, blog, { new: true })
     response.json(updBlog.toJSON())
   } catch (ex) {
     console.log(ex.message)
@@ -101,6 +105,7 @@ blogsRouter.post('/:id/comments', async (request, response, next) => {
     const blog = await Blog.findById(request.params.id)
     const comment = new Comment({
     comment: body.comment,
+    key: body.key,
     blog: blog._id
     })
     const savedComment = await comment.save()

@@ -49,7 +49,7 @@ const BlogList = (props) => {
   return (
     <div>
       <div style={hideWhenFormVisible}>
-        <button onClick={() => setBlogformVisible(true)}>new blog</button>
+        <Button onClick={() => setBlogformVisible(true)}>new blog</Button>
       </div>
       <div style={showWhenFormVisible}>
         <BlogForm addBlog = {props.addBlog}
